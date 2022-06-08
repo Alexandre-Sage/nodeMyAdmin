@@ -31,7 +31,7 @@ router.post("/sign-in",async (req:Request,res:Response,next:NextFunction)=>{
         const {isEmpty,isLength}=validator;
         const {userName,password}=req.body;
         const dataValidation= isEmpty(userName) || isEmpty(password)?false:true;
-        if(password===process.env.DB_PASSWORD && userName===process.env.DB_USER){
+        if(dataValidation && password===process.env.DB_PASSWORD && userName===process.env.DB_USER){
             const sessionToken:string=randomBytes(75).toString('hex');
             session.sessionToken=sessionToken;
             session.save()
@@ -42,8 +42,6 @@ router.post("/sign-in",async (req:Request,res:Response,next:NextFunction)=>{
                 maxAge:600000,
             }).redirect("database-manager");
         }else{
-            log(password===process.env.DB_PASSWORD?true:false)
-            log(userName===process.env.DB_PASSWORD?true:false)
             res.status(400).json({
                 message:"Password or username do not match you're SQL server login"
             });
@@ -52,11 +50,14 @@ router.post("/sign-in",async (req:Request,res:Response,next:NextFunction)=>{
         res.status(403).json({
             message: "Something wrong happened please try again"
         });
-    };  
+    };
 });
 
 router.get("/database-manager",(req:Request,res:Response)=>{
-    log(req.session);
+    log("dbMan")
+    //log(req.session);
+    //log(server.locals)
+    //log(req.locals)
     res.status(200).render("index")
 })
 
