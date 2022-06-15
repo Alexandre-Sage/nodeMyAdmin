@@ -36,6 +36,7 @@ server.use(session({
     saveUninitialized:false,
     cookie:{
         httpOnly:false,
+        sameSite:"strict"
     },
 }));
 server.set('views', path.join(__dirname, 'views'));
@@ -55,10 +56,15 @@ server.use(function(err:Error, req:Request, res:Response, next:NextFunction) {
     console.log(err)
 });
 
-server.use(function(err:any, req :Request, res:Response, next:NextFunction) {
+/**/
+/*process.on('warning', (warning) => {
+    console.log(warning.stack);
+});*/
+/**/
+server.use((err:any, req :Request, res:Response, next:NextFunction)=>{
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
-  //res.status(err.status || 500);
+  res.status(err.status || 500);
   res.render('error');
 });
 

@@ -1,3 +1,14 @@
 extends layout
 block content
-    h1 heloo
+    img()
+    form
+        div
+            label(for="userName") User Name 
+            input(class="loginInput" name="userName" type="text")
+        div
+            label(for="password") Password
+            input(class="loginInput" name="password" type="password")
+        button(id="loginButton") Login
+block scripts
+    script(src="scripts/login.js")
+        

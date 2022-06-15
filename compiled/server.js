@@ -14,8 +14,9 @@ const morgan_1 = __importDefault(require("morgan"));
 const home_1 = __importDefault(require("./routes/home"));
 dotenv_1.default.config();
 const server = (0, express_1.default)();
+;
 server.use((0, cors_1.default)({
-    origin: true,
+    origin: `${process.env.HOST}${process.env.PORT}`,
     methods: ["GET", "POST"],
     credentials: true
 }));
@@ -30,6 +31,7 @@ server.use((0, express_session_1.default)({
     saveUninitialized: false,
     cookie: {
         httpOnly: false,
+        sameSite: "strict"
     },
 }));
 server.set('views', path_1.default.join(__dirname, 'views'));
@@ -46,11 +48,14 @@ server.use(function (err, req, res, next) {
     //res.status(err.status || 500);
     console.log(err);
 });
-server.use(function (err, req, res, next) {
-    // set locals, only providing error in development
+/**/
+/*process.on('warning', (warning) => {
+    console.log(warning.stack);
+});*/
+/**/
+server.use((err, req, res, next) => {
     res.locals.message = err.message;
     res.locals.error = req.app.get('env') === 'development' ? err : {};
-    // render the error page
     res.status(err.status || 500);
     res.render('error');
 });

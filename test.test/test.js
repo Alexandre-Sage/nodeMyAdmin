@@ -2,8 +2,8 @@ const  mysql=require("mysql2");
 const {log,table}=console
 sqlServer=mysql.createConnection({
   host:"127.0.0.1",
-  user:"phpmyadmin",
-  password:"root",
+  user:"",
+  password:"",
   port:3306
 });
 sqlServer.connect((err,res)=>{
