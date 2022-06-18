@@ -15,7 +15,7 @@ export const homeTest=()=>describe("CONNEXION ROUTER",()=>{
                 const contentType="text/html; charset=utf-8";
                 err?done(err):null;
                 assertHeader({res:res,status:status,contentType:contentType,cookie:true})
-                assertError({res:res,client:false,server:false,general:false});
+                assertError({res:res,client:false,server:false,badRequest:false});
                 done();
             });
         });
@@ -34,7 +34,7 @@ export const homeTest=()=>describe("CONNEXION ROUTER",()=>{
                     const status=200;
                     const contentType="text/html; charset=utf-8";
                     assertHeader({res:res,status:status,contentType:contentType,cookie:false});
-                    assertError({res:res,client:false,server:false,general:false});
+                    assertError({res:res,client:false,server:false,badRequest:false});
                     expect(res.redirects).to.be.a("array");
                     expect(res.redirects).to.have.length(1);
                     done()
@@ -66,7 +66,7 @@ export const homeTest=()=>describe("CONNEXION ROUTER",()=>{
                         const contentType="application/json; charset=utf-8";
                         err?done(err):null
                         assertHeader({res:res,status:status,contentType:contentType,cookie:false});
-                        assertError({res:res,client:true,server:false});
+                        assertError({res:res,client:true,server:false, badRequest:true});
                         expect(res.body).to.have.property("message").eql(message);
                         expect(res.badRequest).to.be.eql(true);
                         expect(res.redirects).to.be.a("array");
@@ -89,7 +89,7 @@ export const homeTest=()=>describe("CONNEXION ROUTER",()=>{
                         const contentType="application/json; charset=utf-8";
                         err?done(err):null
                         assertHeader({res:res,status:status,contentType:contentType,cookie:false});
-                        assertError({res:res,client:true,server:false});
+                        assertError({res:res,client:true,server:false, badRequest:true});
                         expect(res.body).to.have.property("message").eql(message);
                         expect(res.badRequest).to.be.eql(true);
                         expect(res.redirects).to.be.a("array");
@@ -114,7 +114,7 @@ export const homeTest=()=>describe("CONNEXION ROUTER",()=>{
                         const contentType="application/json; charset=utf-8";
                         err?done(err):null
                         assertHeader({res:res,status:status,contentType:contentType,cookie:false});
-                        assertError({res:res,client:true,server:false});
+                        assertError({res:res,client:true,server:false, badRequest:true});
                         expect(res.body).to.have.property("message").eql(message);
                         expect(res.badRequest).to.be.eql(true);
                         expect(res.redirects).to.be.a("array");
@@ -137,7 +137,7 @@ export const homeTest=()=>describe("CONNEXION ROUTER",()=>{
                         const contentType="application/json; charset=utf-8";
                         err?done(err):null;
                         assertHeader({res:res,status:status,contentType:contentType,cookie:false});
-                        assertError({res:res,client:true,server:false});
+                        assertError({res:res,client:true,server:false, badRequest:true});
                         expect(res.body).to.have.property("message").eql(message);
                         expect(res.badRequest).to.be.eql(true);
                         expect(res.redirects).to.be.a("array");

@@ -43,7 +43,7 @@ const homeTest = () => describe("CONNEXION ROUTER", () => {
                 const contentType = "text/html; charset=utf-8";
                 err ? done(err) : null;
                 (0, testModule_1.assertHeader)({ res: res, status: status, contentType: contentType, cookie: true });
-                (0, testModule_1.assertError)({ res: res, client: false, server: false, general: false });
+                (0, testModule_1.assertError)({ res: res, client: false, server: false, badRequest: false });
                 done();
             });
         });
@@ -62,7 +62,7 @@ const homeTest = () => describe("CONNEXION ROUTER", () => {
                     const status = 200;
                     const contentType = "text/html; charset=utf-8";
                     (0, testModule_1.assertHeader)({ res: res, status: status, contentType: contentType, cookie: false });
-                    (0, testModule_1.assertError)({ res: res, client: false, server: false, general: false });
+                    (0, testModule_1.assertError)({ res: res, client: false, server: false, badRequest: false });
                     (0, chai_1.expect)(res.redirects).to.be.a("array");
                     (0, chai_1.expect)(res.redirects).to.have.length(1);
                     done();
@@ -94,7 +94,7 @@ const homeTest = () => describe("CONNEXION ROUTER", () => {
                         const contentType = "application/json; charset=utf-8";
                         err ? done(err) : null;
                         (0, testModule_1.assertHeader)({ res: res, status: status, contentType: contentType, cookie: false });
-                        (0, testModule_1.assertError)({ res: res, client: true, server: false });
+                        (0, testModule_1.assertError)({ res: res, client: true, server: false, badRequest: true });
                         (0, chai_1.expect)(res.body).to.have.property("message").eql(message);
                         (0, chai_1.expect)(res.badRequest).to.be.eql(true);
                         (0, chai_1.expect)(res.redirects).to.be.a("array");
@@ -117,7 +117,7 @@ const homeTest = () => describe("CONNEXION ROUTER", () => {
                         const contentType = "application/json; charset=utf-8";
                         err ? done(err) : null;
                         (0, testModule_1.assertHeader)({ res: res, status: status, contentType: contentType, cookie: false });
-                        (0, testModule_1.assertError)({ res: res, client: true, server: false });
+                        (0, testModule_1.assertError)({ res: res, client: true, server: false, badRequest: true });
                         (0, chai_1.expect)(res.body).to.have.property("message").eql(message);
                         (0, chai_1.expect)(res.badRequest).to.be.eql(true);
                         (0, chai_1.expect)(res.redirects).to.be.a("array");
@@ -142,7 +142,7 @@ const homeTest = () => describe("CONNEXION ROUTER", () => {
                         const contentType = "application/json; charset=utf-8";
                         err ? done(err) : null;
                         (0, testModule_1.assertHeader)({ res: res, status: status, contentType: contentType, cookie: false });
-                        (0, testModule_1.assertError)({ res: res, client: true, server: false });
+                        (0, testModule_1.assertError)({ res: res, client: true, server: false, badRequest: true });
                         (0, chai_1.expect)(res.body).to.have.property("message").eql(message);
                         (0, chai_1.expect)(res.badRequest).to.be.eql(true);
                         (0, chai_1.expect)(res.redirects).to.be.a("array");
@@ -165,7 +165,7 @@ const homeTest = () => describe("CONNEXION ROUTER", () => {
                         const contentType = "application/json; charset=utf-8";
                         err ? done(err) : null;
                         (0, testModule_1.assertHeader)({ res: res, status: status, contentType: contentType, cookie: false });
-                        (0, testModule_1.assertError)({ res: res, client: true, server: false });
+                        (0, testModule_1.assertError)({ res: res, client: true, server: false, badRequest: true });
                         (0, chai_1.expect)(res.body).to.have.property("message").eql(message);
                         (0, chai_1.expect)(res.badRequest).to.be.eql(true);
                         (0, chai_1.expect)(res.redirects).to.be.a("array");

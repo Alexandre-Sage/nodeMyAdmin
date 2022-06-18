@@ -91,7 +91,6 @@ router.post("/sign-in", (req, res, next) => __awaiter(void 0, void 0, void 0, fu
                     res.status(400).json({
                         message: message
                     });
-                    //return next()
                 }
                 else if (conn) {
                     const sessionToken = (0, crypto_1.randomBytes)(75).toString('hex');
@@ -105,15 +104,14 @@ router.post("/sign-in", (req, res, next) => __awaiter(void 0, void 0, void 0, fu
                         sameSite: "strict",
                         maxAge: 600000,
                     }).redirect("database-manager");
-                    //return next()
                 }
+                ;
             });
         }
         else {
             res.status(400).json({
                 message: "Password or username is empty"
             });
-            //return next()
         }
         ;
     }
@@ -122,21 +120,49 @@ router.post("/sign-in", (req, res, next) => __awaiter(void 0, void 0, void 0, fu
         res.status(403).json({
             message: "Something wrong happened please try again"
         });
-        //return next()
     }
     ;
 }));
 router.get("/database-manager", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const session = req.session;
-    const dataBase = server.locals.db;
-    const allDbSqlRequest = "SHOW DATABASES";
-    const db = [];
-    const dataBases = yield dataBase.promise().query(allDbSqlRequest);
-    for (const element of dataBases[0]) {
-        const tableNumSqlRequest = `SELECT COUNT(*) FROM information_schema.tables WHERE TABlE_SCHEMA="${element.Database}";`;
-        const tableNumber = yield dataBase.promise().query(tableNumSqlRequest);
-        db.push({ dbName: element.Database, tablesNum: tableNumber[0][0]['COUNT(*)'] });
+    if (req.signedCookies["SESSION-TOKEN"] === session.sessionToken) {
+        const dataBase = server.locals.db;
+        const allDbSqlRequest = "SHOW DATABASES";
+        const db = [];
+        const dataBases = yield dataBase.promise().query(allDbSqlRequest);
+        for (const element of dataBases[0]) {
+            const tableNumSqlRequest = `SELECT COUNT(*) FROM information_schema.tables WHERE TABlE_SCHEMA="${element.Database}";`;
+            const dbSizeSqlRequest = `SELECT table_schema "${element.Database}", sum(data_length + index_length)/1024/1024 "size_mb" FROM information_schema.TABLES WHERE table_schema='${element.Database}' GROUP BY table_schema;`;
+            const tableNumber = yield dataBase.promise().query(tableNumSqlRequest)
+                .then((response) => response[0]);
+            const dbSize = yield dataBase.promise().query(dbSizeSqlRequest)
+                .then((response) => response[0]);
+            const test = { dbName: element.Database, tablesNum: tableNumber[0]['COUNT(*)'], dbSize: dbSize[0] ? `${dbSize[0].size_mb} MB` : "0 MB" };
+            log(test);
+            db.push({ dbName: element.Database, tablesNum: tableNumber[0]['COUNT(*)'], dbSize: dbSize[0] ? `${dbSize[0].size_mb} MB` : "0 MB" });
+        }
+        ;
+        res.status(200).render("index", { dataBases: db });
     }
-    res.status(200).render("index", { dataBases: db });
+    else {
+        res.status(403).json({ message: "Something wrong happened" });
+    }
 }));
+router.get("/database-manager/:dbName", (req, res) => {
+    const session = req.session;
+    if (req.signedCookies["SESSION-TOKEN"] === session.sessionToken) {
+        log(req.params);
+        const dataBase = server.locals.db;
+        dataBase.databse = req.params.dbName;
+        const allTableSqlRequest = `SELECT TABLE_NAME  FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_SCHEMA=?;`;
+        dataBase.query(allTableSqlRequest, [req.params.dbName], (err, tables) => {
+            err ? log(err) : null;
+            res.status(200).json(tables);
+        });
+    }
+    else {
+        res.status(403).json({ message: "Something wrong happened" });
+    }
+    ;
+});
 exports.default = router;

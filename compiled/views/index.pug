@@ -1,7 +1,20 @@
 extends layout
 block content
     h1 REDIRECTED
-    each v of dataBases
-        p=v.dbName
-        p=v.tablesNum
+    table
+        thead
+            tr
+                th Database
+                th Tables
+                th Size 
+                th Settings
+        tbody
+            each v of dataBases
+                tr(id=v.dbName className="db-button")
+                    td=v.dbName
+                    td=v.tablesNum
+                    td=v.dbSize
+                    td(class="settings")
+                        p SQL
+                        p Delete 
 block scripts

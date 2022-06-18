@@ -1,3 +1,4 @@
+import http from "http";
 import express,{Express,Request,Response,NextFunction} from "express";
 import path from "path";
 import dotenv from "dotenv";
@@ -7,7 +8,9 @@ import session from "express-session";
 import cookieParser from "cookie-parser";
 import bodyParser from "body-parser";
 import logger from "morgan";
+import sassMiddleware from "node-sass-middleware"
 import home from "./routes/home";
+
 dotenv.config();
 const server:Express=express();
 
@@ -18,6 +21,16 @@ declare module "express-session" {
     }
 };
 
+server.use(sassMiddleware({
+    /* Options */
+    src: __dirname+"/src/styles/scss",
+    dest: path.join(__dirname, '/src/styles/css'),
+    debug: true,
+    //indentedSyntax:true,
+    error:(err:void)=>log(err),
+    outputStyle: 'compressed',
+    //prefix:  '/styles'  // Where prefix is at <link rel="stylesheets" href="prefix/style.css"/>
+}));
 
 server.use(cors({
     origin:`${process.env.HOST}${process.env.PORT}`,
@@ -67,8 +80,8 @@ server.use((err:any, req :Request, res:Response, next:NextFunction)=>{
   res.status(err.status || 500);
   res.render('error');
 });
-
-server.listen(process.env.PORT,()=>{
+const httpServer=http.createServer(server);
+httpServer.listen(process.env.PORT,()=>{
     console.log(`Server listening on: ${process.env.PORT}`);
 });
 

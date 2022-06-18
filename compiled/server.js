@@ -3,6 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const http_1 = __importDefault(require("http"));
 const express_1 = __importDefault(require("express"));
 const path_1 = __importDefault(require("path"));
 const dotenv_1 = __importDefault(require("dotenv"));
@@ -11,10 +12,21 @@ const express_session_1 = __importDefault(require("express-session"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const body_parser_1 = __importDefault(require("body-parser"));
 const morgan_1 = __importDefault(require("morgan"));
+const node_sass_middleware_1 = __importDefault(require("node-sass-middleware"));
 const home_1 = __importDefault(require("./routes/home"));
 dotenv_1.default.config();
 const server = (0, express_1.default)();
 ;
+server.use((0, node_sass_middleware_1.default)({
+    /* Options */
+    src: __dirname + "/src/styles/scss",
+    dest: path_1.default.join(__dirname, '/src/styles/css'),
+    debug: true,
+    //indentedSyntax:true,
+    error: (err) => log(err),
+    outputStyle: 'compressed',
+    //prefix:  '/styles'  // Where prefix is at <link rel="stylesheets" href="prefix/style.css"/>
+}));
 server.use((0, cors_1.default)({
     origin: `${process.env.HOST}${process.env.PORT}`,
     methods: ["GET", "POST"],
@@ -59,7 +71,8 @@ server.use((err, req, res, next) => {
     res.status(err.status || 500);
     res.render('error');
 });
-server.listen(process.env.PORT, () => {
+const httpServer = http_1.default.createServer(server);
+httpServer.listen(process.env.PORT, () => {
     console.log(`Server listening on: ${process.env.PORT}`);
 });
 exports.default = server;

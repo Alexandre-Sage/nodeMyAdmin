@@ -1,6 +1,9 @@
 extends layout
+block stylesheet
+    link(rel='stylesheet', href='/home.css')
+    //link(rel='scss', href='/styles/scss/home.scss', type="text/x-scss")
 block content
-    img()
+    img(src="images/logoblanc.png")
     form
         div
             label(for="userName") User Name 

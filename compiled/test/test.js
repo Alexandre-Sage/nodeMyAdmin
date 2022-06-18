@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+//import mocha from "mocha";
 const dbManager_test_1 = require("./dbManager.test");
 const home_test_1 = require("./home.test");
 /*describe("Describe something",()=>{
@@ -10,6 +11,6 @@ const home_test_1 = require("./home.test");
 describe("HOME TEST", () => {
     (0, home_test_1.homeTest)();
 });
-describe.only("DB MANAGER TEST", () => {
+describe("DB MANAGER TEST", () => {
     (0, dbManager_test_1.dbManagerTest)();
 });

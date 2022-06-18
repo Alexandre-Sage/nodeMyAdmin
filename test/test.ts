@@ -1,4 +1,4 @@
-import mocha from "mocha";
+//import mocha from "mocha";
 import {dbManagerTest} from "./dbManager.test";
 import {homeTest} from "./home.test";
 /*describe("Describe something",()=>{
@@ -9,6 +9,6 @@ import {homeTest} from "./home.test";
 describe("HOME TEST",()=>{
     homeTest();
 });
-describe.only("DB MANAGER TEST",()=>{
+describe("DB MANAGER TEST",()=>{
     dbManagerTest();
 });

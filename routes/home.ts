@@ -1,4 +1,4 @@
-import express,{Express,Request,Response,NextFunction} from "express";
+import express,{Request,Response,NextFunction} from "express";
 import crypto,{randomBytes} from "crypto";
 import validator from "validator";
 import mysql from "mysql2"
@@ -58,7 +58,6 @@ router.post("/sign-in",async (req:Request,res:Response,next:NextFunction)=>{
                     res.status(400).json({
                         message:message
                     });
-                    //return next()
                 }else if(conn){
                     const sessionToken:string=randomBytes(75).toString('hex');
                     session.csurfToken=""
@@ -71,14 +70,13 @@ router.post("/sign-in",async (req:Request,res:Response,next:NextFunction)=>{
                         sameSite: "strict",
                         maxAge:600000,
                     }).redirect("database-manager");
-                    //return next()
-                }
+                };
             });
         }else{
             res.status(400).json({
                 message:"Password or username is empty"
             });
-            //return next()
+
         };
     }else{
         log(req.signedCookies)
@@ -86,22 +84,46 @@ router.post("/sign-in",async (req:Request,res:Response,next:NextFunction)=>{
             message: "Something wrong happened please try again"
         });
 
-        //return next()
     };
 });
 
 router.get("/database-manager",async(req:Request,res:Response)=>{
     const session=req.session;
-    const dataBase=server.locals.db;
-    const allDbSqlRequest="SHOW DATABASES";
-    const db:Array<object>=[]
-    const  dataBases= await dataBase.promise().query(allDbSqlRequest)
-    for(const element of dataBases[0]){
-        const tableNumSqlRequest=`SELECT COUNT(*) FROM information_schema.tables WHERE TABlE_SCHEMA="${element.Database}";`
-        const tableNumber= await dataBase.promise().query(tableNumSqlRequest);
-        db.push({dbName:element.Database,tablesNum:tableNumber[0][0]['COUNT(*)']});
+    if(req.signedCookies["SESSION-TOKEN"]===session.sessionToken){
+        const dataBase=server.locals.db;
+        const allDbSqlRequest="SHOW DATABASES";
+        const db:Array<object>=[];
+        const dataBases= await dataBase.promise().query(allDbSqlRequest)
+        for(const element of dataBases[0]){
+            const tableNumSqlRequest=`SELECT COUNT(*) FROM information_schema.tables WHERE TABlE_SCHEMA="${element.Database}";`;
+            const dbSizeSqlRequest=`SELECT table_schema "${element.Database}", sum(data_length + index_length)/1024/1024 "size_mb" FROM information_schema.TABLES WHERE table_schema='${element.Database}' GROUP BY table_schema;`;
+            const tableNumber= await dataBase.promise().query(tableNumSqlRequest)
+            .then((response:Array<object>)=>response[0]);
+            const dbSize= await dataBase.promise().query(dbSizeSqlRequest)
+            .then((response:Array<object>)=>response[0]);
+            const test={dbName:element.Database,tablesNum:tableNumber[0]['COUNT(*)'],dbSize:dbSize[0]?`${dbSize[0].size_mb} MB`:"0 MB"}
+            log(test)
+            db.push({dbName:element.Database,tablesNum:tableNumber[0]['COUNT(*)'],dbSize:dbSize[0]?`${dbSize[0].size_mb} MB`:"0 MB"});
+        };
+        res.status(200).render("index",{dataBases:db});
+    }else{
+        res.status(403).json({message:"Something wrong happened"});
     }
-    res.status(200).render("index",{dataBases:db})
 });
 
+router.get("/database-manager/:dbName",(req:Request,res:Response)=>{
+    const session=req.session;
+    if(req.signedCookies["SESSION-TOKEN"]===session.sessionToken){
+        log(req.params)
+        const dataBase=server.locals.db;
+        dataBase.databse=req.params.dbName;
+        const allTableSqlRequest=`SELECT TABLE_NAME  FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_SCHEMA=?;`;
+        dataBase.query(allTableSqlRequest,[req.params.dbName],(err:any,tables:Array<object>)=>{
+            err?log(err):null;
+            res.status(200).json(tables);
+        });
+    }else{
+        res.status(403).json({message:"Something wrong happened"})
+    };
+});
 export default router;
