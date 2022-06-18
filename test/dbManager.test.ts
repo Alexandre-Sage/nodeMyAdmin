@@ -17,13 +17,14 @@ export const dbManagerTest=()=>describe("DB MANAGER ROUTER",()=>{
                 .send({password:process.env.DB_PASSWORD,userName:process.env.DB_USER})
                 .end((err,res)=>{
                     err?done(err):null
-                    log(res.text)
+                    log(res)
                     expect(res).to.have.status(200);
-                    //log(res.body)
+                    log(res.body)
                     //expect(res.body).to.have.property("dataBases");
                     done()
                 });
             });
+            //done(
         });
     });
 })

@@ -91,6 +91,7 @@ router.post("/sign-in", (req, res, next) => __awaiter(void 0, void 0, void 0, fu
                     res.status(400).json({
                         message: message
                     });
+                    //return next()
                 }
                 else if (conn) {
                     const sessionToken = (0, crypto_1.randomBytes)(75).toString('hex');
@@ -104,6 +105,7 @@ router.post("/sign-in", (req, res, next) => __awaiter(void 0, void 0, void 0, fu
                         sameSite: "strict",
                         maxAge: 600000,
                     }).redirect("database-manager");
+                    //return next()
                 }
             });
         }
@@ -111,33 +113,30 @@ router.post("/sign-in", (req, res, next) => __awaiter(void 0, void 0, void 0, fu
             res.status(400).json({
                 message: "Password or username is empty"
             });
+            //return next()
         }
         ;
     }
     else {
+        log(req.signedCookies);
         res.status(403).json({
             message: "Something wrong happened please try again"
         });
+        //return next()
     }
     ;
 }));
-router.get("/database-manager", (req, res) => {
+router.get("/database-manager", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const session = req.session;
     const dataBase = server.locals.db;
     const allDbSqlRequest = "SHOW DATABASES";
     const db = [];
-    dataBase.query(allDbSqlRequest, (err, dataBases) => {
-        dataBases.forEach((element) => {
-            const tableNumSqlRequest = `SELECT COUNT(*) FROM information_schema.tables WHERE TABlE_SCHEMA="${element.Database}";`;
-            dataBase.query(tableNumSqlRequest, (err, tables) => {
-                db.push({ dbName: element.Database, tablesNum: tables[0]['COUNT(*)'] });
-                //log(db)
-                //log(tables[0]['COUNT(*)'])
-            });
-        });
-        err ? log(err) : null;
-        log(db);
-        res.status(200).render("index", { dataBases: db });
-    });
-});
+    const dataBases = yield dataBase.promise().query(allDbSqlRequest);
+    for (const element of dataBases[0]) {
+        const tableNumSqlRequest = `SELECT COUNT(*) FROM information_schema.tables WHERE TABlE_SCHEMA="${element.Database}";`;
+        const tableNumber = yield dataBase.promise().query(tableNumSqlRequest);
+        db.push({ dbName: element.Database, tablesNum: tableNumber[0][0]['COUNT(*)'] });
+    }
+    res.status(200).render("index", { dataBases: db });
+}));
 exports.default = router;

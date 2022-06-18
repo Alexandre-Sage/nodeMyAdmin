@@ -10,6 +10,7 @@ const assertHeader = (headerObject) => {
 };
 exports.assertHeader = assertHeader;
 const assertError = (errorObject) => {
+    //{serverError:boolean, clientError:boolean}
     (0, chai_1.expect)(errorObject.res.clientError).to.be.eql(errorObject.client);
     (0, chai_1.expect)(errorObject.res.serverError).to.be.eql(errorObject.server);
     //expect(errorObject.res.error).to.be.eql(errorObject.general);
