@@ -6,7 +6,7 @@
   "scripts": {
     "test": "clear && env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha --recursive -r ts-node/register 'test/**/test.ts'",
     "build": "clear && npx tsc",
-    "start": "clear && concurrently \"npx tsc --watch\" \"nodemon -q compiled/server.js\"",
+    "start": "clear && concurrently \"npx tsc --watch\" \"node compiled/server.js\"",
     "some": "node compiled/server.js"
   },
   "author": "Alex Sage",

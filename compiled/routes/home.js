@@ -39,6 +39,7 @@ const express_1 = __importDefault(require("express"));
 const crypto_1 = __importStar(require("crypto"));
 const validator_1 = __importDefault(require("validator"));
 const mysql2_1 = __importDefault(require("mysql2"));
+const homeRequest_1 = require("./sqlRequests/homeRequest");
 const server = (0, express_1.default)();
 const router = express_1.default.Router();
 /*DEV*/
@@ -116,7 +117,6 @@ router.post("/sign-in", (req, res, next) => __awaiter(void 0, void 0, void 0, fu
         ;
     }
     else {
-        log(req.signedCookies);
         res.status(403).json({
             message: "Something wrong happened please try again"
         });
@@ -127,18 +127,17 @@ router.get("/database-manager", (req, res) => __awaiter(void 0, void 0, void 0, 
     const session = req.session;
     if (req.signedCookies["SESSION-TOKEN"] === session.sessionToken) {
         const dataBase = server.locals.db;
-        const allDbSqlRequest = "SHOW DATABASES";
         const db = [];
-        const dataBases = yield dataBase.promise().query(allDbSqlRequest);
-        for (const element of dataBases[0]) {
-            const tableNumSqlRequest = `SELECT COUNT(*) FROM information_schema.tables WHERE TABlE_SCHEMA="${element.Database}";`;
-            const dbSizeSqlRequest = `SELECT table_schema "${element.Database}", sum(data_length + index_length)/1024/1024 "size_mb" FROM information_schema.TABLES WHERE table_schema='${element.Database}' GROUP BY table_schema;`;
-            const tableNumber = yield dataBase.promise().query(tableNumSqlRequest)
-                .then((response) => response[0]);
-            const dbSize = yield dataBase.promise().query(dbSizeSqlRequest)
-                .then((response) => response[0]);
-            const test = { dbName: element.Database, tablesNum: tableNumber[0]['COUNT(*)'], dbSize: dbSize[0] ? `${dbSize[0].size_mb} MB` : "0 MB" };
-            log(test);
+        const dataBases = yield dataBase.promise().query(homeRequest_1.allDbSqlRequest)
+            .then((response) => response[0])
+            .catch((err) => log(err));
+        for (const element of dataBases) {
+            const tableNumber = yield dataBase.promise().query((0, homeRequest_1.tableNumSqlRequest)(element.Database))
+                .then((response) => response[0])
+                .catch((err) => log(err));
+            const dbSize = yield dataBase.promise().query((0, homeRequest_1.dbSizeSqlRequest)(element.Database))
+                .then((response) => response[0])
+                .catch((err) => log(err));
             db.push({ dbName: element.Database, tablesNum: tableNumber[0]['COUNT(*)'], dbSize: dbSize[0] ? `${dbSize[0].size_mb} MB` : "0 MB" });
         }
         ;
@@ -151,10 +150,10 @@ router.get("/database-manager", (req, res) => __awaiter(void 0, void 0, void 0, 
 router.get("/database-manager/:dbName", (req, res) => {
     const session = req.session;
     if (req.signedCookies["SESSION-TOKEN"] === session.sessionToken) {
-        log(req.params);
         const dataBase = server.locals.db;
         dataBase.databse = req.params.dbName;
         const allTableSqlRequest = `SELECT TABLE_NAME  FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_SCHEMA=?;`;
+        const tableSizeSqlRequest = `SELECT table_name AS "Table", round(((data_length + index_length) / 1024 / 1024), 2) "table_size" FROM information_schema.TABLES WHERE table_schema= ?`;
         dataBase.query(allTableSqlRequest, [req.params.dbName], (err, tables) => {
             err ? log(err) : null;
             res.status(200).json(tables);

@@ -22,12 +22,11 @@ declare module "express-session" {
 };
 
 server.use(sassMiddleware({
-    /* Options */
     src: __dirname+"/src/styles/scss",
     dest: path.join(__dirname, '/src/styles/css'),
-    debug: true,
-    //indentedSyntax:true,
-    error:(err:void)=>log(err),
+    debug: process.env.NODE_ENV==="development"?true:false,
+    indentedSyntax:false,
+    error:(err:void)=>console.log(err),
     outputStyle: 'compressed',
     //prefix:  '/styles'  // Where prefix is at <link rel="stylesheets" href="prefix/style.css"/>
 }));
@@ -39,7 +38,7 @@ server.use(cors({
 }));
 
 server.use(bodyParser.urlencoded({extended:false}));
-process.env.NODE_ENV==="dev"?server.use(logger("dev")):null;
+process.env.NODE_ENV==="development"?server.use(logger("dev")):null;
 server.use(express.json());
 server.use(express.urlencoded({extended:true}));
 server.use(cookieParser("secret"));

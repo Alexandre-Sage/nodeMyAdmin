@@ -18,12 +18,11 @@ dotenv_1.default.config();
 const server = (0, express_1.default)();
 ;
 server.use((0, node_sass_middleware_1.default)({
-    /* Options */
     src: __dirname + "/src/styles/scss",
     dest: path_1.default.join(__dirname, '/src/styles/css'),
-    debug: true,
-    //indentedSyntax:true,
-    error: (err) => log(err),
+    debug: process.env.NODE_ENV === "development" ? true : false,
+    indentedSyntax: false,
+    error: (err) => console.log(err),
     outputStyle: 'compressed',
     //prefix:  '/styles'  // Where prefix is at <link rel="stylesheets" href="prefix/style.css"/>
 }));
@@ -33,7 +32,7 @@ server.use((0, cors_1.default)({
     credentials: true
 }));
 server.use(body_parser_1.default.urlencoded({ extended: false }));
-process.env.NODE_ENV === "dev" ? server.use((0, morgan_1.default)("dev")) : null;
+process.env.NODE_ENV === "development" ? server.use((0, morgan_1.default)("dev")) : null;
 server.use(express_1.default.json());
 server.use(express_1.default.urlencoded({ extended: true }));
 server.use((0, cookie_parser_1.default)("secret"));
