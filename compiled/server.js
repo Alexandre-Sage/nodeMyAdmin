@@ -20,11 +20,10 @@ const server = (0, express_1.default)();
 server.use((0, node_sass_middleware_1.default)({
     src: __dirname + "/src/styles/scss",
     dest: path_1.default.join(__dirname, '/src/styles/css'),
-    debug: process.env.NODE_ENV === "development" ? true : false,
+    debug: process.env.NODE_ENV === "styling" ? true : false,
     indentedSyntax: false,
     error: (err) => console.log(err),
     outputStyle: 'compressed',
-    //prefix:  '/styles'  // Where prefix is at <link rel="stylesheets" href="prefix/style.css"/>
 }));
 server.use((0, cors_1.default)({
     origin: `${process.env.HOST}${process.env.PORT}`,

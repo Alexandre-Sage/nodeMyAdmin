@@ -4,7 +4,7 @@ import {assertError,assertHeader} from "./testModule";
 import chaiHttp from "chai-http";
 import server from "../server";
 chai.use(chaiHttp);
-//const {log,table}=console;
+const {log,table}=console;
 
 export const dbManagerTest=()=>describe("DB MANAGER ROUTER",()=>{
     describe("1) GET THE HOME PAGE AND DISPLAY ALL DATABASES",()=>{
@@ -47,6 +47,34 @@ export const dbManagerTest=()=>describe("DB MANAGER ROUTER",()=>{
                         expect(res.body).to.be.a("array")
                         expect(res.body).to.have.length(3)
                         done()
+                    });
+                });
+            });
+        });
+    });
+    describe("3) SHOULD RAISE UNKNOW DB ERROR",()=>{
+        it("Get a unknow database",(done)=>{
+            const agent=chai.request.agent(server);
+            agent.get("/")
+            .end((err,res)=>{
+                err?done(err):null
+                expect(res).to.have.status(200);
+                agent.post("/sign-in")
+                .send({password:process.env.DB_PASSWORD,userName:process.env.DB_USER})
+                .end((err,res)=>{
+                    err?done(err):null
+                    expect(res).to.have.status(200);
+                    agent.get("/database-manager/some_db")
+                    .end((err:Error,res:any)=>{
+                        err?done(err):null;
+                        const status=403;
+                        const contentType="application/json; charset=utf-8";
+                        assertHeader({res:res,status:status,contentType:contentType,cookie:false});
+                        assertError({res:res,server:false, client:true, badRequest:false});
+                        expect(res).to.be.json;
+                        expect(res.body).to.be.a("object");
+                        expect(res.body).to.have.property("message");
+                        done();
                     });
                 });
             });

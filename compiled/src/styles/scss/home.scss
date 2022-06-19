@@ -1,11 +1,6 @@
 @import "./main.scss";
 body{
     background: $main-color;
-    //width: 100%;
-    display: flex;
-    //flex-direction: row;
-    //align-items: center;
-    //justify-content: center;
     height: 100vh;
     @include centered-flex-column;
 }

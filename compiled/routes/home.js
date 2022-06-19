@@ -44,11 +44,7 @@ const server = (0, express_1.default)();
 const router = express_1.default.Router();
 /*DEV*/
 const { log, table } = console;
-/*router.get("/",function(req:Request,res:Response,next:NextFunction){
-    console.log(req.session);
-    res.status(200).json({message:"Hello World"})
-});*/
-router.get("/", (req, res, next) => {
+router.get("/", (req, res) => {
     const csurfToken = crypto_1.default.randomBytes(50).toString('hex');
     const session = req.session;
     session.csurfToken = csurfToken;
@@ -60,8 +56,7 @@ router.get("/", (req, res, next) => {
         maxAge: 600000
     }).render("home");
 });
-router.post("/sign-in", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    //log(req.body)
+router.post("/sign-in", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const session = req.session;
     if (req.signedCookies["CSRF-TOKEN"] === session.csurfToken && session.csurfToken) {
         const { isEmpty, isLength } = validator_1.default;
@@ -147,21 +142,32 @@ router.get("/database-manager", (req, res) => __awaiter(void 0, void 0, void 0, 
         res.status(403).json({ message: "Something wrong happened" });
     }
 }));
-router.get("/database-manager/:dbName", (req, res) => {
+router.get("/database-manager/:dbName", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const session = req.session;
     if (req.signedCookies["SESSION-TOKEN"] === session.sessionToken) {
         const dataBase = server.locals.db;
-        dataBase.databse = req.params.dbName;
-        const allTableSqlRequest = `SELECT TABLE_NAME  FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_SCHEMA=?;`;
-        const tableSizeSqlRequest = `SELECT table_name AS "Table", round(((data_length + index_length) / 1024 / 1024), 2) "table_size" FROM information_schema.TABLES WHERE table_schema= ?`;
-        dataBase.query(allTableSqlRequest, [req.params.dbName], (err, tables) => {
-            err ? log(err) : null;
-            res.status(200).json(tables);
-        });
+        const { dbName } = req.params;
+        let sucess = false;
+        do {
+            const itExsitSqlRequest = `USE ${dbName};`;
+            yield dataBase.promise().query(itExsitSqlRequest)
+                .then((response) => sucess = true)
+                .catch((err) => res.status(403).json({ message: `${err.code}, ${err.sqlMessage}` }));
+        } while (!sucess);
+        {
+            dataBase.databse = dbName;
+            const allTableSqlRequest = `SELECT TABLE_NAME  FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_SCHEMA=?;`;
+            const tableSizeSqlRequest = `SELECT table_name AS "Table", round(((data_length + index_length) / 1024 / 1024), 2) "table_size" FROM information_schema.TABLES WHERE table_schema= ?`;
+            dataBase.query(allTableSqlRequest, [dbName], (err, tables) => {
+                err ? log(err) : null;
+                res.status(200).json(tables);
+            });
+        }
+        ;
     }
     else {
         res.status(403).json({ message: "Something wrong happened" });
     }
     ;
-});
+}));
 exports.default = router;
