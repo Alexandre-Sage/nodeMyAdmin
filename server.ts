@@ -4,12 +4,12 @@ import path from "path";
 import dotenv from "dotenv";
 import createError from "http-errors";
 import cors from "cors";
-import session from "express-session";
+import session,{Session} from "express-session";
 import cookieParser from "cookie-parser";
 import bodyParser from "body-parser";
 import logger from "morgan";
-import sassMiddleware from "node-sass-middleware"
-import home from "./routes/home";
+import sassMiddleware from "node-sass-middleware";
+import home from "./routes/home/home";
 
 dotenv.config();
 const server:Express=express();

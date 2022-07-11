@@ -3,7 +3,7 @@ export interface SqlError{
     errno:number,
     sqlState:string,
     sqlMessage:string,
-    sql: any | undefined
+    sql: string | undefined
 };
 /*export type SqlError={
     code:string,

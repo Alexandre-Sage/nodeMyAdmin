@@ -1,34 +1,31 @@
-import express,{Request,Response,NextFunction} from "express";
-import crypto,{randomBytes} from "crypto";
+import express,{Request,Response} from "express";
+import {SqlError} from "../custom/SqlError";
 import validator from "validator";
-import mysql from "mysql2"
+import mysql from "mysql2";
 import {allDbSqlRequest,tableNumSqlRequest,dbSizeSqlRequest} from "./sqlRequests/homeRequest"
-import {SqlError} from "./custom/sqlError";
-const server=express()
-const router = express.Router();
-
-
+import {cookieResponse,tokenGenerator} from "../modules/cookies/general";
+import {csurfCookieGenerator} from "../modules/cookies/csurf";
+import {randomBytes} from "crypto";
+const server=express();
+const router=express.Router();
 /*DEV*/
 const {log,table}=console;
+/**/
+
 
 router.get("/",(req:Request,res:Response)=>{
-    const csurfToken:string=crypto.randomBytes(50).toString('hex');
-    const session:any=req.session;
-    session.csurfToken=csurfToken;
-    session.save();
-    res.status(200).cookie("CSRF-TOKEN",csurfToken,{
-        httpOnly: true,
-        signed: true,
-        sameSite: "strict",
-        maxAge:600000
-    }).render("home");
+    const csurfToken=tokenGenerator(50);
+    csurfCookieGenerator(req,csurfToken);
+    const options={httpOnly: true, signed: true, sameSite: true, maxAge:600000};
+    return cookieResponse(res,200,"CSRF-TOKEN",csurfToken,options).render("home");
 });
+
 router.post("/sign-in",async (req:Request,res:Response)=>{
     const session=req.session;
-    if(req.signedCookies["CSRF-TOKEN"]===session.csurfToken && session.csurfToken){
+    if(session.csurfToken && req.signedCookies["CSRF-TOKEN"]===session.csurfToken){
         const {isEmpty,isLength}=validator;
         const {userName,password}=req.body;
-        const dataValidation= isEmpty(userName) || isEmpty(password)?false:true;
+        const dataValidation= !(isEmpty(userName) || isEmpty(password));
         if(dataValidation){
             const dataBase=mysql.createPool({
                 host:"127.0.0.1",
@@ -49,6 +46,8 @@ router.post("/sign-in",async (req:Request,res:Response)=>{
                         case "ER_ACCESS_DENIED_ERROR":
                             message="Wrong password"
                             break;
+                        default:
+                            "Something wrong happened please retry."
                     };
                     res.status(400).json({
                         message:message
@@ -112,12 +111,13 @@ router.get("/database-manager/:dbName",async (req: Request,res:Response):Promise
             const itExsitSqlRequest=`USE ${dbName};`;
             await dataBase.promise().query(itExsitSqlRequest)
             .then((response:any)=>sucess=true)
-            .catch((err:SqlError)=>res.status(403).json({message:`${err.code}, ${err.sqlMessage}`}))
+            .catch((err:SqlError)=>res.status(403).json({message:`${err.code}, ${err.sqlMessage}`}));
         }while(!sucess){
-            dataBase.databse=dbName;
+            dataBase.database=dbName;
             const allTableSqlRequest=`SELECT TABLE_NAME  FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_SCHEMA=?;`;
             const tableSizeSqlRequest=`SELECT table_name AS "Table", round(((data_length + index_length) / 1024 / 1024), 2) "table_size" FROM information_schema.TABLES WHERE table_schema= ?`;
             dataBase.query(allTableSqlRequest,[dbName],(err:SqlError,tables:Array<object>)=>{
+                //table(tables)
                 err?log(err):null;
                 res.status(200).json(tables);
             });
@@ -126,4 +126,8 @@ router.get("/database-manager/:dbName",async (req: Request,res:Response):Promise
         res.status(403).json({message:"Something wrong happened"})
     };
 });
+
+
 export default router;
+
+//Programation fonctionelle
