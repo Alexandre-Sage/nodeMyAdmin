@@ -45,9 +45,11 @@ const dbManagerTest = () => describe("DB MANAGER ROUTER", () => {
                 agent.post("/sign-in")
                     .send({ password: process.env.DB_PASSWORD, userName: process.env.DB_USER })
                     .end((err, res) => {
+                    log(server_1.default.locals.db);
                     err ? done(err) : null;
                     (0, chai_1.expect)(res).to.have.status(200);
                     done();
+                    agent.close();
                 });
             });
         });
@@ -74,6 +76,7 @@ const dbManagerTest = () => describe("DB MANAGER ROUTER", () => {
                         (0, chai_1.expect)(res).to.be.json;
                         (0, chai_1.expect)(res.body).to.be.a("array");
                         (0, chai_1.expect)(res.body).to.have.length(3);
+                        agent.close();
                         done();
                     });
                 });
@@ -103,6 +106,7 @@ const dbManagerTest = () => describe("DB MANAGER ROUTER", () => {
                         (0, chai_1.expect)(res.body).to.be.a("object");
                         (0, chai_1.expect)(res.body).to.have.property("message");
                         done();
+                        agent.close();
                     });
                 });
             });
@@ -110,3 +114,4 @@ const dbManagerTest = () => describe("DB MANAGER ROUTER", () => {
     });
 });
 exports.dbManagerTest = dbManagerTest;
+//TEST END TO END AND CYPRESS

@@ -1,11 +1,19 @@
+/*Sur pour le moment*/
 import express,{Request,Response} from "express";
+import {cookieResponse,tokenGenerator} from "../modules/cookies/general";
+import {csurfCookieGenerator,csurfChecking} from "../modules/cookies/csurf";
+import {sessionCreation} from "../modules/sessionManagement/sessionCreation";
+import {databaseConnectionTesting} from "../modules/sql/connectionTest";
+/*Sait pas*/
+import {dataBaseOptions} from "../modules/sql/dbOptions";
+/**/
+/*Potentiellement a enlever*/
+import {sqlError} from "../modules/sql/sqlError";
 import {SqlError} from "../custom/SqlError";
 import validator from "validator";
-import mysql from "mysql2";
 import {allDbSqlRequest,tableNumSqlRequest,dbSizeSqlRequest} from "./sqlRequests/homeRequest"
-import {cookieResponse,tokenGenerator} from "../modules/cookies/general";
-import {csurfCookieGenerator} from "../modules/cookies/csurf";
-import {randomBytes} from "crypto";
+
+
 const server=express();
 const router=express.Router();
 /*DEV*/
@@ -15,69 +23,41 @@ const {log,table}=console;
 
 router.get("/",(req:Request,res:Response)=>{
     const csurfToken=tokenGenerator(50);
-    csurfCookieGenerator(req,csurfToken);
     const options={httpOnly: true, signed: true, sameSite: true, maxAge:600000};
+    csurfCookieGenerator(req,csurfToken);
     return cookieResponse(res,200,"CSRF-TOKEN",csurfToken,options).render("home");
 });
 
-router.post("/sign-in",async (req:Request,res:Response)=>{
+router.post("/sign-in",(req:Request,res:Response)=>{
     const session=req.session;
-    if(session.csurfToken && req.signedCookies["CSRF-TOKEN"]===session.csurfToken){
-        const {isEmpty,isLength}=validator;
-        const {userName,password}=req.body;
-        const dataValidation= !(isEmpty(userName) || isEmpty(password));
-        if(dataValidation){
-            const dataBase=mysql.createPool({
-                host:"127.0.0.1",
-                user:userName,
-                password:password,
-                port:3306,
-            });
-            dataBase.getConnection((err:any | SqlError,conn:any)=>{
-                if(err){
-                    let message:string | undefined;
-                    switch(err.code){
-                        case "ECONNREFUSED":
-                            message="Connection refused please check if mariaDb is enabled."
-                            break;
-                        case "ER_ACCESS_DENIED_NO_PASSWORD_ERROR":
-                            message="The provided user doesn't exist."
-                            break;
-                        case "ER_ACCESS_DENIED_ERROR":
-                            message="Wrong password"
-                            break;
-                        default:
-                            "Something wrong happened please retry."
-                    };
-                    res.status(400).json({
-                        message:message
-                    });
-                }else if(conn){
-                    const sessionToken:string=randomBytes(75).toString('hex');
-                    session.csurfToken=""
-                    session.sessionToken=sessionToken;
-                    session.save();
-                    server.locals.db=dataBase;
-                    res.status(200).cookie("SESSION-TOKEN",sessionToken,{
-                        httpOnly: true,
-                        signed: true,
-                        sameSite: "strict",
-                        maxAge:600000,
-                    }).redirect("database-manager");
-                };
-            });
-        }else{
-            res.status(400).json({
-                message:"Password or username is empty"
-            });
-
-        };
+    const {userName,password}=req.body;
+    const {isEmpty,isLength}=validator;
+    const dataValidation= !(isEmpty(userName) || isEmpty(password));
+    if(csurfChecking(session,req) && dataValidation){
+        const dataBase=dataBaseOptions(userName,password);
+        console.log("here",databaseConnectionTesting(dataBase,res));
+        dataBase.getConnection((err:any | SqlError, conn:any)=>{
+            if(err){
+                sqlError(err,res);
+            }else if(conn){
+                //console.log(databaseConnectionTesting(dataBase,res));
+                const sessionToken=tokenGenerator(75);
+                session.csurfToken=""
+                sessionCreation(server,session,dataBase,sessionToken);
+                const options={httpOnly: true,signed: true, sameSite: true,maxAge:600000}
+                return cookieResponse(res,200,"SESSION-TOKEN",sessionToken,options).redirect("database-manager");
+            };
+        });
     }else{
-        res.status(403).json({
-            message: "Something wrong happened please try again"
+        const status=!dataValidation?400:403;
+        const message=!dataValidation?"Password or username is empty":"Something wrong happened please try again";
+        res.status(status).json({
+            message: message
         });
     };
+    //return response
 });
+
 router.get("/database-manager",async(req:Request,res:Response):Promise<any>=>{
     const session=req.session;
     if(req.signedCookies["SESSION-TOKEN"]===session.sessionToken){

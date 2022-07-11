@@ -13,7 +13,7 @@ const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const body_parser_1 = __importDefault(require("body-parser"));
 const morgan_1 = __importDefault(require("morgan"));
 const node_sass_middleware_1 = __importDefault(require("node-sass-middleware"));
-const home_1 = __importDefault(require("./routes/home"));
+const home_1 = __importDefault(require("./routes/home/home"));
 dotenv_1.default.config();
 const server = (0, express_1.default)();
 ;
@@ -26,7 +26,7 @@ server.use((0, node_sass_middleware_1.default)({
     outputStyle: 'compressed',
 }));
 server.use((0, cors_1.default)({
-    origin: `${process.env.HOST}${process.env.PORT}`,
+    origin: [`${process.env.HOST}${process.env.PORT}`, "http://localhost:8000"],
     methods: ["GET", "POST"],
     credentials: true
 }));

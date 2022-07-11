@@ -31,7 +31,7 @@ server.use(sassMiddleware({
 }));
 
 server.use(cors({
-    origin:`${process.env.HOST}${process.env.PORT}`,
+    origin:[`${process.env.HOST}${process.env.PORT}`,"http://localhost:8000"],
     methods: ["GET","POST"],
     credentials:true
 }));
