@@ -2,15 +2,15 @@
 import express,{Request,Response} from "express";
 import {cookieResponse,tokenGenerator} from "../modules/cookies/general";
 import {csurfCookieGenerator,csurfChecking} from "../modules/cookies/csurf";
-import {sessionCreation} from "../modules/sessionManagement/sessionCreation";
 import {databaseConnectionTesting} from "../modules/sql/connectionTest";
+import {notEmptyCheck} from "../modules/dataValidation/notEmpty";
 /*Sait pas*/
 import {dataBaseOptions} from "../modules/sql/dbOptions";
 /**/
 /*Potentiellement a enlever*/
-import {sqlError} from "../modules/sql/sqlError";
+//import {sqlError} from "../modules/sql/sqlError";
+//import {sessionCreation} from "../modules/sessionManagement/sessionCreation";
 import {SqlError} from "../custom/SqlError";
-import validator from "validator";
 import {allDbSqlRequest,tableNumSqlRequest,dbSizeSqlRequest} from "./sqlRequests/homeRequest"
 
 
@@ -28,34 +28,19 @@ router.get("/",(req:Request,res:Response)=>{
     return cookieResponse(res,200,"CSRF-TOKEN",csurfToken,options).render("home");
 });
 
-router.post("/sign-in",(req:Request,res:Response)=>{
+router.post("/sign-in",async(req:Request,res:Response)=>{
     const session=req.session;
-    const {userName,password}=req.body;
-    const {isEmpty,isLength}=validator;
-    const dataValidation= !(isEmpty(userName) || isEmpty(password));
-    if(csurfChecking(session,req) && dataValidation){
+    if(csurfChecking(session,req) && notEmptyCheck(req.body)){
+        const {userName,password}=req.body;
         const dataBase=dataBaseOptions(userName,password);
-        console.log("here",databaseConnectionTesting(dataBase,res));
-        dataBase.getConnection((err:any | SqlError, conn:any)=>{
-            if(err){
-                sqlError(err,res);
-            }else if(conn){
-                //console.log(databaseConnectionTesting(dataBase,res));
-                const sessionToken=tokenGenerator(75);
-                session.csurfToken=""
-                sessionCreation(server,session,dataBase,sessionToken);
-                const options={httpOnly: true,signed: true, sameSite: true,maxAge:600000}
-                return cookieResponse(res,200,"SESSION-TOKEN",sessionToken,options).redirect("database-manager");
-            };
-        });
+        databaseConnectionTesting(server,dataBase,res,session);
     }else{
-        const status=!dataValidation?400:403;
-        const message=!dataValidation?"Password or username is empty":"Something wrong happened please try again";
+        const status=!notEmptyCheck(req.body)?400:403;
+        const message=!notEmptyCheck(req.body)?"Password or username is empty":"Something wrong happened please try again";
         res.status(status).json({
             message: message
         });
     };
-    //return response
 });
 
 router.get("/database-manager",async(req:Request,res:Response):Promise<any>=>{
@@ -79,6 +64,7 @@ router.get("/database-manager",async(req:Request,res:Response):Promise<any>=>{
     }else{
         res.status(403).json({message:"Something wrong happened"});
     }
+
 });
 
 router.get("/database-manager/:dbName",async (req: Request,res:Response):Promise<any>=>{

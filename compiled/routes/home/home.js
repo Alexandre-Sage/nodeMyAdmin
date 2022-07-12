@@ -16,14 +16,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const general_1 = require("../modules/cookies/general");
 const csurf_1 = require("../modules/cookies/csurf");
-const sessionCreation_1 = require("../modules/sessionManagement/sessionCreation");
 const connectionTest_1 = require("../modules/sql/connectionTest");
+const notEmpty_1 = require("../modules/dataValidation/notEmpty");
 /*Sait pas*/
 const dbOptions_1 = require("../modules/sql/dbOptions");
-/**/
-/*Potentiellement a enlever*/
-const sqlError_1 = require("../modules/sql/sqlError");
-const validator_1 = __importDefault(require("validator"));
 const homeRequest_1 = require("./sqlRequests/homeRequest");
 const server = (0, express_1.default)();
 const router = express_1.default.Router();
@@ -36,39 +32,22 @@ router.get("/", (req, res) => {
     (0, csurf_1.csurfCookieGenerator)(req, csurfToken);
     return (0, general_1.cookieResponse)(res, 200, "CSRF-TOKEN", csurfToken, options).render("home");
 });
-router.post("/sign-in", (req, res) => {
+router.post("/sign-in", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const session = req.session;
-    const { userName, password } = req.body;
-    const { isEmpty, isLength } = validator_1.default;
-    const dataValidation = !(isEmpty(userName) || isEmpty(password));
-    if ((0, csurf_1.csurfChecking)(session, req) && dataValidation) {
+    if ((0, csurf_1.csurfChecking)(session, req) && (0, notEmpty_1.notEmptyCheck)(req.body)) {
+        const { userName, password } = req.body;
         const dataBase = (0, dbOptions_1.dataBaseOptions)(userName, password);
-        console.log("here", (0, connectionTest_1.databaseConnectionTesting)(dataBase, res));
-        dataBase.getConnection((err, conn) => {
-            if (err) {
-                (0, sqlError_1.sqlError)(err, res);
-            }
-            else if (conn) {
-                //console.log(databaseConnectionTesting(dataBase,res));
-                const sessionToken = (0, general_1.tokenGenerator)(75);
-                session.csurfToken = "";
-                (0, sessionCreation_1.sessionCreation)(server, session, dataBase, sessionToken);
-                const options = { httpOnly: true, signed: true, sameSite: true, maxAge: 600000 };
-                return (0, general_1.cookieResponse)(res, 200, "SESSION-TOKEN", sessionToken, options).redirect("database-manager");
-            }
-            ;
-        });
+        (0, connectionTest_1.databaseConnectionTesting)(server, dataBase, res, session);
     }
     else {
-        const status = !dataValidation ? 400 : 403;
-        const message = !dataValidation ? "Password or username is empty" : "Something wrong happened please try again";
+        const status = !(0, notEmpty_1.notEmptyCheck)(req.body) ? 400 : 403;
+        const message = !(0, notEmpty_1.notEmptyCheck)(req.body) ? "Password or username is empty" : "Something wrong happened please try again";
         res.status(status).json({
             message: message
         });
     }
     ;
-    //return response
-});
+}));
 router.get("/database-manager", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const session = req.session;
     if (req.signedCookies["SESSION-TOKEN"] === session.sessionToken) {
