@@ -1,0 +1,29 @@
+$main-color: rgba(48,48,48,1);
+$overlay-color: rgba(66,68,69,0.17);
+$green-color: rgba(33,163,0,1);
+$green-color-border: rgba(33,163,0,0.1);
+$white-color:white;
+$text-input-color: rgba(255, 255, 255, 0.27);
+
+$h1-size: 3.8rem;
+$h2-size: 3.2rem;
+$h3-size: 2.6rem;
+$p-size: 1.6rem;
+
+@mixin centered-flex-column{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+@mixin space-around-flex-column{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+}
+
+*{
+    font-size: 10px;
+};

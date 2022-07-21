@@ -2,16 +2,15 @@ import http from "http";
 import express,{Express,Request,Response,NextFunction} from "express";
 import path from "path";
 import dotenv from "dotenv";
-import createError from "http-errors";
 import session,{Session} from "express-session";
 import cookieParser from "cookie-parser";
 import bodyParser from "body-parser";
 import logger from "morgan";
-import corsMiddleware from "./middlewares/corsMiddleware";
-import sass from "./middlewares/sass";
-import home from "./routes/home/home";
+//import corsMiddleware from "./middlewares/corsMiddleware";
+//import sass from "./middlewares/sass";
+//import home from "./routes/home/home";
+//import validator from "validator";
 
-import validator from "validator";
 
 //require('dotenv').config();
 const server:Express=express();
@@ -47,7 +46,6 @@ server.use('/src', express.static(path.join(__dirname, "src")));
 
 
 
-server.use('/', home);
 
 /*server.use(function(req :Request, res:Response, next:NextFunction){
     next(createError(404));
@@ -67,7 +65,7 @@ server.use((err:any, req :Request, res:Response, next:NextFunction)=>{
   res.status(err.status || 500);
   res.render('error');
 });*//////////////////???????////////////////
-const notEmptyCheck=server.use(function(req:Request,res:Response,next:NextFunction){
+/*const notEmptyCheck=server.use(function(req:Request,res:Response,next:NextFunction){
     console.log("here",req)
     console.log("ok")
     if(req.method==="POST"){
@@ -84,7 +82,8 @@ const notEmptyCheck=server.use(function(req:Request,res:Response,next:NextFuncti
         next()
     }
 });
-server.use(notEmptyCheck) //Remonter le MW avant les routes
+server.use(notEmptyCheck) //Remonter le MW avant les routes*/
+server.use('/', home);
 const httpServer=http.createServer(server);
 httpServer.listen(process.env.PORT,()=>{
     console.log(`Server listening on: ${process.env.PORT}`);
