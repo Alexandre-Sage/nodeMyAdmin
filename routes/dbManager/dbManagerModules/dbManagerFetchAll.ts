@@ -7,21 +7,18 @@ const {log}=console;
 export default async function fetchAllDatabasesInfo(dataBaseAdress:Pool,res:Response){
     const dataBases:Array<object>=[];
     await sqlQuery(dataBaseAdress,allDbSqlRequest)
-    .then(dataBasesNames=>{
+    .then(async dataBasesNames=>{
         for(const dataBase of Object.entries(dataBasesNames)[0][1]){
-            console.log(dataBase)
-        }
-    })
-    .catch(err=>err)
-}
-
-/*export const fetchAllDatabasesInfo=async (dataBaseAdress:Pool,res:Response)=>{
-    const dataBasesNames:Array<any>=await sqlQuery(dataBaseAdress,allDbSqlRequest);
-    const dataBases:Array<object>=[];
-    for(const element of dataBasesNames[0]){
-        const tableNumber:Array<any>= await sqlQuery(dataBaseAdress,tableNumSqlRequest(element.Database));
-        const dbSize:Array<any> =await sqlQuery(dataBaseAdress,dbSizeSqlRequest(element.Database));
-        dataBases.push({dbName:element.Database,tablesNum:tableNumber[0][0]['COUNT(*)'],dbSize:dbSize[0][0]?`${dbSize[0][0].size_mb} MB`:"0 MB"});
-    };
-    return dataBases;
-}*/
+            const name=dataBase.Database
+            log(name)
+            Promise.all([
+                await sqlQuery(dataBaseAdress,tableNumSqlRequest(dataBase.Database)),
+                await sqlQuery(dataBaseAdress,dbSizeSqlRequest(dataBase.Database))
+            ]).then(resolved=>{
+                const tableNumber=Object.entries(resolved[0])[0][1][0]['COUNT(*)'];
+                const dbSize=Object.entries(resolved[1])[0][1][0]?Object.entries(resolved[1])[0][1][0].size_mb:0;
+                dataBases.push({dbName:name,tablesNum:tableNumber,dbSize:`${dbSize} MB`});
+            }).catch(err=>log(err));
+        };
+    }).catch((err:SqlError)=>err);
+};
