@@ -3,21 +3,24 @@ import chai,{request,assert,should,expect} from "chai";
 import {assertError,assertHeader} from "../testModules/httpModule.test";
 import chaiHttp from "chai-http";
 import server from "../../server";
+import {Response} from "express";
 chai.use(chaiHttp);
 const {log,table}=console;
+function test(path:String,status:number,contentType:string,done:Function){
+    chai.request(server)
+    .get("/")
+    .end((err:Error,res:any)=>{
+        err?done(err):null;
+        assertHeader({res:res,status:status,contentType:contentType,cookie:true})
+        assertError({res:res,client:false,server:false,badRequest:false});
+        done();
+    });
+}
+
 export default describe("CONNEXION ROUTER",()=>{
     describe.only("1) GET THE HOME PAGE",()=>{
         it("Should render the home page && get a cookie",(done)=>{
-            chai.request(server)
-            .get("/")
-            .end((err:Error,res:any)=>{
-                const status=200;
-                const contentType="text/html; charset=utf-8";
-                err?done(err):null;
-                assertHeader({res:res,status:status,contentType:contentType,cookie:true})
-                assertError({res:res,client:false,server:false,badRequest:false});
-                done();
-            });
+            test("/",200,"text/html; charset=utf-8",done)
         });
     });
     describe.only("2) POST THE LOGIN FORM",()=>{
@@ -33,11 +36,11 @@ export default describe("CONNEXION ROUTER",()=>{
                     err?done(err):null
                     const status=200;
                     const contentType="text/html; charset=utf-8";
-                    console.log(res)
+                    //console.log(res)
                     assertHeader({res:res,status:status,contentType:contentType,cookie:false});
                     assertError({res:res,client:false,server:false,badRequest:false});
-                    //expect(res.redirects).to.be.a("array");
-                    //expect(res.redirects).to.have.length(1);
+                    expect(res.redirects).to.be.a("array");
+                    expect(res.redirects).to.have.length(1);
                     done()
                 });
             });

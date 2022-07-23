@@ -11,6 +11,7 @@ import logger from "morgan";
 //import corsMiddleware from "./middlewares/corsMiddleware";
 //import sass from "./middlewares/sass";
 import login from "./routes/login/login";
+import dbManager from "./routes/dbManager/allDatabases";
 //import validator from "validator";
 
 
@@ -57,10 +58,15 @@ server.set('view engine', 'pug');
 server.use(express.static(path.join(__dirname, "src")));
 server.use('/src', express.static(path.join(__dirname, "src")));
 
+/*server.use((req:any,res:any,next:any)=>{
+    //req.app.locals.db?(server.locals.db=req.app.locals.db, delete req.app.locals.db):null
+    next()
+})*/
 
 server.use('/', login);
+server.use('/database-manager', dbManager);
 const httpServer=http.createServer(server);
-httpServer.listen(process.env.PORT,()=>{
+httpServer.listen(process.env.PORT,function(){
     console.log(`Server listening on: ${process.env.PORT}`);
 });
 

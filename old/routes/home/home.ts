@@ -26,7 +26,7 @@ const {log,table}=console;
     const options={httpOnly: true, signed: true, sameSite: true, maxAge:600000};
     csurfCookieGenerator(req,csurfToken);
     return cookieResponse(res,200,"CSRF-TOKEN",csurfToken,options).render("home");
-});*/
+});
 
 router.post("/sign-in",async(req:Request,res:Response)=>{
     const session=req.session;
@@ -41,7 +41,7 @@ router.post("/sign-in",async(req:Request,res:Response)=>{
             message: message
         });
     };
-});
+});*/
 
 router.get("/database-manager",async(req:Request,res:Response)=>{
     const session=req.session;
