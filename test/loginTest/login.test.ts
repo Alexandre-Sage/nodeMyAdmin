@@ -1,12 +1,12 @@
-import mocha from "mocha";
+//import mocha from "mocha";
 import chai,{request,assert,should,expect} from "chai";
-import {assertError,assertHeader} from "./testModule";
+import {assertError,assertHeader} from "../testModules/httpModule.test";
 import chaiHttp from "chai-http";
-import server from "../server";
+import server from "../../server";
 chai.use(chaiHttp);
 const {log,table}=console;
-export const homeTest=()=>describe("CONNEXION ROUTER",()=>{
-    describe("1) GET THE HOME PAGE",()=>{
+export default describe("CONNEXION ROUTER",()=>{
+    describe.only("1) GET THE HOME PAGE",()=>{
         it("Should render the home page && get a cookie",(done)=>{
             chai.request(server)
             .get("/")
@@ -20,23 +20,24 @@ export const homeTest=()=>describe("CONNEXION ROUTER",()=>{
             });
         });
     });
-    describe("2) POST THE LOGIN FORM",()=>{
+    describe.only("2) POST THE LOGIN FORM",()=>{
         it("Should post the login form and redirect to the dbManager",(done)=>{
             const agent=chai.request.agent(server);
             agent.get("/")
             .end((err,res)=>{
                 err?log(err):null
                 expect(res).to.have.status(200);
-                agent.post("/sign-in")
+                agent.post("/login")
                 .send({password:process.env.DB_PASSWORD,userName:process.env.DB_USER})
                 .end((err,res)=>{
                     err?done(err):null
                     const status=200;
                     const contentType="text/html; charset=utf-8";
+                    console.log(res)
                     assertHeader({res:res,status:status,contentType:contentType,cookie:false});
                     assertError({res:res,client:false,server:false,badRequest:false});
-                    expect(res.redirects).to.be.a("array");
-                    expect(res.redirects).to.have.length(1);
+                    //expect(res.redirects).to.be.a("array");
+                    //expect(res.redirects).to.have.length(1);
                     done()
                 });
             });

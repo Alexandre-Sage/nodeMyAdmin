@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "clear && env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha --recursive -r ts-node/register 'test/**/test.ts'",
+    "test": "clear && env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha --recursive -r ts-node/register 'test/**/highOrder.test.ts'",
     "build": "clear && npx tsc",
     "start": "clear && concurrently \"npx tsc --watch\" \"node compiled/server.js\"",
     "some": "node compiled/server.js"

@@ -21,12 +21,12 @@ const {log,table}=console;
 /**/
 
 
-router.get("/",(req:Request,res:Response)=>{
+/*router.get("/",(req:Request,res:Response)=>{
     const csurfToken=tokenGenerator(50);
     const options={httpOnly: true, signed: true, sameSite: true, maxAge:600000};
     csurfCookieGenerator(req,csurfToken);
     return cookieResponse(res,200,"CSRF-TOKEN",csurfToken,options).render("home");
-});
+});*/
 
 router.post("/sign-in",async(req:Request,res:Response)=>{
     const session=req.session;

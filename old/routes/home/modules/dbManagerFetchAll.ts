@@ -11,5 +11,5 @@ export const fetchAllDatabasesInfo=async (dataBaseAdress:Pool,res:Response)=>{
         const dbSize:Array<any>=await sqlQuery(dataBaseAdress,res,dbSizeSqlRequest(element.Database));
         dataBases.push({dbName:element.Database,tablesNum:tableNumber[0][0]['COUNT(*)'],dbSize:dbSize[0][0]?`${dbSize[0][0].size_mb} MB`:"0 MB"});
     };
-    return db;
+    return dataBases;
 }

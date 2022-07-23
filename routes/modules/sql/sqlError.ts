@@ -1,8 +1,7 @@
-import {SqlError} from "../../custom/SqlError";
+import {SqlError} from "../../../interfaces/SqlError";
 import {Response} from "express";
 export const sqlError=(err:SqlError,res:Response):Response=>{
     let message: string | undefined;
-    //console.log(err)
     switch(err.code){
         case "ECONNREFUSED":
             message="Connection refused please check if mariaDb is enabled.";
@@ -16,6 +15,5 @@ export const sqlError=(err:SqlError,res:Response):Response=>{
         default:
             message="Something wrong happened please retry.";
     };
-    //console.log(message)
     return res.status(400).json({message:message});
-}
+};

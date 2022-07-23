@@ -7,7 +7,7 @@ import mysql from "mysql2";
 chai.use(chaiHttp);
 const {log,table}=console;
 
-export const dbManagerTest=()=>describe("DB MANAGER ROUTER",()=>{
+describe("DB MANAGER ROUTER",()=>{
     describe.only("1) GET THE HOME PAGE AND DISPLAY ALL DATABASES",()=>{
         it("Should login and fetch all the availaible DB",(done)=>{
             const agent=chai.request.agent(server);
