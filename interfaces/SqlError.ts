@@ -1,4 +1,4 @@
-export interface SqlError{
+export interface SqlError extends Object /*Array<any>*/{
     code:string,
     errno:number,
     sqlState:string,

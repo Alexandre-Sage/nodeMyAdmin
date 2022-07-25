@@ -10,9 +10,10 @@ router.get("/",async(req:Request,res:Response)=>{
     const session=req.session;
     if(sessionChecking(req,session)){
         const dataBase=req.app.locals.db;
-        const dataBases=await fetchAllDatabasesInfo(dataBase,res);
-        dataBases
-        //dataBase.then((res:any)=>log("then",res)).catch((err:any)=>log(err))
+        await fetchAllDatabasesInfo(dataBase,res)
+        .then(allDatabases=>log(allDatabases))
+        .catch(err=>log(err))
+        // /log(fetchAllDatabasesInfo(dataBase,res))
         return res.render("index",{dataBases:"dataBases"});
     }else{
         return res.status(403).json({message:"Something wrong happened"});

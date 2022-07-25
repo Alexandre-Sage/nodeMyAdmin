@@ -33,6 +33,7 @@ export default describe("CONNEXION ROUTER",()=>{
                 agent.post("/login")
                 .send({password:process.env.DB_PASSWORD,userName:process.env.DB_USER})
                 .end((err,res)=>{
+                    //log(res)
                     err?done(err):null
                     const status=200;
                     const contentType="text/html; charset=utf-8";

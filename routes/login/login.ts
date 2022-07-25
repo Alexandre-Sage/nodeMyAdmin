@@ -6,9 +6,9 @@ import {csurfCookieGenerator,csurfChecking} from "../modules/cookies/csurf";
 import {notEmptyCheck} from "../modules/dataValidation/notEmpty";
 import {sessionCreation} from "../modules/sessionManagement/sessionCreation";
 import {sqlError} from "../modules/sql/sqlError";
-
-const server=express();
+import {SqlError} from "../../interfaces/SqlError"
 const router=express.Router();
+const server=express();
 
 /*DEV*/
 const {log,table}=console;
@@ -27,13 +27,13 @@ router.post("/login",async (req:Request,res:Response)=>{
         const {userName,password}=req.body;
         const dataBase=dataBaseOptions(userName,password);
         await connectToDatabase(dataBase)
-        .then(resolved=>{
+        .then((resolved)=>{
             const sessionToken=tokenGenerator(75);
             session.csurfToken="";
             const options={httpOnly: true,signed: true, sameSite: true,maxAge:600000};
             sessionCreation(req,server,session,dataBase,sessionToken);
-            cookieResponse(res,200,"SESSION-TOKEN",sessionToken,options).redirect("database-manager");
-        }).catch(err=>sqlError(err,res));
+            return cookieResponse(res,200,"SESSION-TOKEN",sessionToken,options).redirect("database-manager");
+        }).catch((err:SqlError)=>sqlError(err,res));
     };
 });
 export default router;

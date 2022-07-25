@@ -27,8 +27,8 @@ declare module "express-session" {
 };
 
 server.use(sassMiddleware({
-    src: __dirname+"/src/styles/scss",
-    dest: path.join(__dirname, '../src/styles/css'),
+    src: __dirname+"src/styles/scss",
+    dest: path.join(__dirname, 'src/styles/css'),
     debug: process.env.NODE_ENV==="styling"?true:false,
     indentedSyntax:false,
     error:(err:void)=>console.log(err),

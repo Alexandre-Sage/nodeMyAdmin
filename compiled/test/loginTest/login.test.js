@@ -26,43 +26,45 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.homeTest = void 0;
+//import mocha from "mocha";
 const chai_1 = __importStar(require("chai"));
-const testModule_1 = require("./testModule");
+const httpModule_test_1 = require("../testModules/httpModule.test");
 const chai_http_1 = __importDefault(require("chai-http"));
-const server_1 = __importDefault(require("../server"));
+const server_1 = __importDefault(require("../../server"));
 chai_1.default.use(chai_http_1.default);
 const { log, table } = console;
-const homeTest = () => describe("CONNEXION ROUTER", () => {
-    describe("1) GET THE HOME PAGE", () => {
+function test(path, status, contentType, done) {
+    chai_1.default.request(server_1.default)
+        .get("/")
+        .end((err, res) => {
+        err ? done(err) : null;
+        (0, httpModule_test_1.assertHeader)({ res: res, status: status, contentType: contentType, cookie: true });
+        (0, httpModule_test_1.assertError)({ res: res, client: false, server: false, badRequest: false });
+        done();
+    });
+}
+exports.default = describe("CONNEXION ROUTER", () => {
+    describe.only("1) GET THE HOME PAGE", () => {
         it("Should render the home page && get a cookie", (done) => {
-            chai_1.default.request(server_1.default)
-                .get("/")
-                .end((err, res) => {
-                const status = 200;
-                const contentType = "text/html; charset=utf-8";
-                err ? done(err) : null;
-                (0, testModule_1.assertHeader)({ res: res, status: status, contentType: contentType, cookie: true });
-                (0, testModule_1.assertError)({ res: res, client: false, server: false, badRequest: false });
-                done();
-            });
+            test("/", 200, "text/html; charset=utf-8", done);
         });
     });
-    describe("2) POST THE LOGIN FORM", () => {
+    describe.only("2) POST THE LOGIN FORM", () => {
         it("Should post the login form and redirect to the dbManager", (done) => {
             const agent = chai_1.default.request.agent(server_1.default);
             agent.get("/")
                 .end((err, res) => {
                 err ? log(err) : null;
                 (0, chai_1.expect)(res).to.have.status(200);
-                agent.post("/sign-in")
+                agent.post("/login")
                     .send({ password: process.env.DB_PASSWORD, userName: process.env.DB_USER })
                     .end((err, res) => {
                     err ? done(err) : null;
                     const status = 200;
                     const contentType = "text/html; charset=utf-8";
-                    (0, testModule_1.assertHeader)({ res: res, status: status, contentType: contentType, cookie: false });
-                    (0, testModule_1.assertError)({ res: res, client: false, server: false, badRequest: false });
+                    //console.log(res)
+                    (0, httpModule_test_1.assertHeader)({ res: res, status: status, contentType: contentType, cookie: false });
+                    (0, httpModule_test_1.assertError)({ res: res, client: false, server: false, badRequest: false });
                     (0, chai_1.expect)(res.redirects).to.be.a("array");
                     (0, chai_1.expect)(res.redirects).to.have.length(1);
                     done();
@@ -93,8 +95,8 @@ const homeTest = () => describe("CONNEXION ROUTER", () => {
                         const status = 400;
                         const contentType = "application/json; charset=utf-8";
                         err ? done(err) : null;
-                        (0, testModule_1.assertHeader)({ res: res, status: status, contentType: contentType, cookie: false });
-                        (0, testModule_1.assertError)({ res: res, client: true, server: false, badRequest: true });
+                        (0, httpModule_test_1.assertHeader)({ res: res, status: status, contentType: contentType, cookie: false });
+                        (0, httpModule_test_1.assertError)({ res: res, client: true, server: false, badRequest: true });
                         (0, chai_1.expect)(res.body).to.have.property("message").eql(message);
                         (0, chai_1.expect)(res.badRequest).to.be.eql(true);
                         (0, chai_1.expect)(res.redirects).to.be.a("array");
@@ -116,8 +118,8 @@ const homeTest = () => describe("CONNEXION ROUTER", () => {
                         const status = 400;
                         const contentType = "application/json; charset=utf-8";
                         err ? done(err) : null;
-                        (0, testModule_1.assertHeader)({ res: res, status: status, contentType: contentType, cookie: false });
-                        (0, testModule_1.assertError)({ res: res, client: true, server: false, badRequest: true });
+                        (0, httpModule_test_1.assertHeader)({ res: res, status: status, contentType: contentType, cookie: false });
+                        (0, httpModule_test_1.assertError)({ res: res, client: true, server: false, badRequest: true });
                         (0, chai_1.expect)(res.body).to.have.property("message").eql(message);
                         (0, chai_1.expect)(res.badRequest).to.be.eql(true);
                         (0, chai_1.expect)(res.redirects).to.be.a("array");
@@ -141,8 +143,8 @@ const homeTest = () => describe("CONNEXION ROUTER", () => {
                         const status = 400;
                         const contentType = "application/json; charset=utf-8";
                         err ? done(err) : null;
-                        (0, testModule_1.assertHeader)({ res: res, status: status, contentType: contentType, cookie: false });
-                        (0, testModule_1.assertError)({ res: res, client: true, server: false, badRequest: true });
+                        (0, httpModule_test_1.assertHeader)({ res: res, status: status, contentType: contentType, cookie: false });
+                        (0, httpModule_test_1.assertError)({ res: res, client: true, server: false, badRequest: true });
                         (0, chai_1.expect)(res.body).to.have.property("message").eql(message);
                         (0, chai_1.expect)(res.badRequest).to.be.eql(true);
                         (0, chai_1.expect)(res.redirects).to.be.a("array");
@@ -164,8 +166,8 @@ const homeTest = () => describe("CONNEXION ROUTER", () => {
                         const status = 400;
                         const contentType = "application/json; charset=utf-8";
                         err ? done(err) : null;
-                        (0, testModule_1.assertHeader)({ res: res, status: status, contentType: contentType, cookie: false });
-                        (0, testModule_1.assertError)({ res: res, client: true, server: false, badRequest: true });
+                        (0, httpModule_test_1.assertHeader)({ res: res, status: status, contentType: contentType, cookie: false });
+                        (0, httpModule_test_1.assertError)({ res: res, client: true, server: false, badRequest: true });
                         (0, chai_1.expect)(res.body).to.have.property("message").eql(message);
                         (0, chai_1.expect)(res.badRequest).to.be.eql(true);
                         (0, chai_1.expect)(res.redirects).to.be.a("array");
@@ -177,4 +179,3 @@ const homeTest = () => describe("CONNEXION ROUTER", () => {
         });
     }); //
 });
-exports.homeTest = homeTest;
