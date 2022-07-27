@@ -1,4 +1,5 @@
 import express,{Request,Response} from "express";
+import {SqlError} from "../../interfaces/SqlError";
 import connectToDatabase from "../modules/sql/connection";
 import dataBaseOptions from "../modules/sql/dbOptions";
 import {cookieResponse,tokenGenerator} from "../modules/cookies/general";
@@ -6,7 +7,6 @@ import {csurfCookieGenerator,csurfChecking} from "../modules/cookies/csurf";
 import {notEmptyCheck} from "../modules/dataValidation/notEmpty";
 import {sessionCreation} from "../modules/sessionManagement/sessionCreation";
 import {sqlError} from "../modules/sql/sqlError";
-import {SqlError} from "../../interfaces/SqlError"
 const router=express.Router();
 const server=express();
 
@@ -18,7 +18,7 @@ router.get("/",(req:Request,res:Response)=>{
     const csurfToken=tokenGenerator(50);
     const options={httpOnly: true, signed: true, sameSite: true, maxAge:600000};
     csurfCookieGenerator(req,csurfToken);
-    return cookieResponse(res,200,"CSRF-TOKEN",csurfToken,options).render("home");
+    cookieResponse(res,200,"CSRF-TOKEN",csurfToken,options).render("home");
 });
 
 router.post("/login",async (req:Request,res:Response)=>{
