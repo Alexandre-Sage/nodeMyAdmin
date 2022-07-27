@@ -22,14 +22,15 @@ router.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const session = req.session;
     if ((0, sessionChecking_1.sessionChecking)(req, session)) {
         const dataBase = req.app.locals.db;
+        let allDatabases;
         yield (0, dbManagerFetchAll_1.default)(dataBase, res)
-            .then(allDatabases => log(allDatabases))
+            .then(allDatabases => allDatabases = allDatabases)
             .catch(err => log(err));
         // /log(fetchAllDatabasesInfo(dataBase,res))
-        return res.render("index", { dataBases: "dataBases" });
+        res.render("index", { dataBases: allDatabases });
     }
     else {
-        return res.status(403).json({ message: "Something wrong happened" });
+        res.status(403).json({ message: "Something wrong happened" });
     }
     ;
 }));

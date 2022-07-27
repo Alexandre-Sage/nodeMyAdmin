@@ -21,6 +21,7 @@ function fetchAllDatabasesInfo(dataBaseAdress, res) {
         let error;
         yield (0, sqlQueries_1.default)(dataBaseAdress, homeRequest_1.allDbSqlRequest)
             .then((dataBasesNames) => __awaiter(this, void 0, void 0, function* () {
+            //for(const some of dataBasesNames){}
             for (const dataBase of Object.entries(dataBasesNames)[0][1]) {
                 const name = dataBase.Database;
                 Promise.all([

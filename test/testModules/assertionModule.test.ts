@@ -1,5 +1,5 @@
 import chai,{request,assert,should,expect} from "chai";
-import {ErrorObject,HeaderObject,BodyPropertyObj} from "./modulesInterfaces";
+import {ErrorObject,HeaderObject,BodyPropertyObj,AssertBodyObj} from "./modulesInterfaces";
 
  const assertHeader=(res:any,headerObject:HeaderObject)=>{
     expect(res).to.have.status(headerObject.status);
@@ -8,10 +8,11 @@ import {ErrorObject,HeaderObject,BodyPropertyObj} from "./modulesInterfaces";
     headerObject.cookie?expect(res.header).to.have.property("set-cookie"):null;
 };
 
- const assertBody=(res:any,redirectsLength:number,propertyArray?:Array<BodyPropertyObj>)=>{
+ const assertBody=(res:any,assertBodyObj:AssertBodyObj | any)=>{
     expect(res.redirects).to.be.a("array");
+    const {redirectsLength,propertyArray}=assertBodyObj;
     expect(res.redirects).to.have.length(redirectsLength);
-    propertyArray?propertyArray.forEach(item=>expect(res.body).to.have.property(item.propertyName).eql(item.propertyValue)):null;
+    propertyArray?propertyArray.forEach((item:any)=>expect(res.body).to.have.property(item.propertyName).eql(item.propertyValue)):null;
 };
 
  const assertError=(res:any,errorObject:ErrorObject)=>{

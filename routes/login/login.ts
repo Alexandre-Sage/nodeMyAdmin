@@ -34,6 +34,10 @@ router.post("/login",async (req:Request,res:Response)=>{
             sessionCreation(req,server,session,dataBase,sessionToken);
             return cookieResponse(res,200,"SESSION-TOKEN",sessionToken,options).redirect("database-manager");
         }).catch((err:SqlError)=>sqlError(err,res));
-    };
+    }else if(!notEmptyCheck(req.body)){
+        res.status(400).json({message:"Username or password is empty."})
+    }else if(csurfChecking(session,req)) {
+        res.status(403).json({message:"Something went wrong please retry"});
+    }
 });
 export default router;

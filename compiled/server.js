@@ -23,8 +23,8 @@ const server = (0, express_1.default)();
 dotenv_1.default.config( /*{path:path.resolve("./.env")}*/);
 ;
 server.use((0, node_sass_middleware_1.default)({
-    src: __dirname + "/src/styles/scss",
-    dest: path_1.default.join(__dirname, '../src/styles/css'),
+    src: __dirname + "src/styles/scss",
+    dest: path_1.default.join(__dirname, 'src/styles/css'),
     debug: process.env.NODE_ENV === "styling" ? true : false,
     indentedSyntax: false,
     error: (err) => console.log(err),

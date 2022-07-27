@@ -5,6 +5,11 @@ declare interface HeaderObject{
     cookie:boolean
 };
 
+declare interface AssertBodyObj{
+    redirectsLength:number,
+    propertyArray?:Array<BodyPropertyObj>
+}
+
 declare interface BodyPropertyObj{
     propertyName:string,
     propertyValue:/*number | string | boolean | Array<object> | Array<string> |*/ any ,
@@ -16,4 +21,4 @@ declare interface ErrorObject{
    badRequest:boolean
 };
 
-export {ErrorObject,BodyPropertyObj,HeaderObject};
+export {AssertBodyObj,ErrorObject,BodyPropertyObj,HeaderObject};

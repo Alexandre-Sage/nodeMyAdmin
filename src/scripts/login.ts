@@ -7,7 +7,7 @@ button.addEventListener("click",(event:Event)=>{
     loginInput.forEach((item:any)=>{
         answers[item.name]=item.value
     });
-    fetch("http://127.0.0.1:8000/sign-in",{
+    fetch("http://127.0.0.1:8000/login",{
         method:"POST",
         redirect:"follow",
         headers:{

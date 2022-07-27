@@ -9,9 +9,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-function sqlQuery(dataBase, query) {
+function sqlQuery(dataBase, query, preparedArray) {
     return __awaiter(this, void 0, void 0, function* () {
-        return yield dataBase.promise().query(query)
+        return yield dataBase.promise().query(query, preparedArray ? preparedArray : undefined)
             .then((dbResponse) => dbResponse)
             .catch((err) => err);
     });
