@@ -19,12 +19,12 @@ router.get("/",(req:Request,res:Response)=>{
     cookieResponse(res,200,"CSRF-TOKEN",csurfToken,options).render("home");
 });
 
-router.post("/login",async (req:Request,res:Response)=>{
+router.post("/login",async function(req:Request,res:Response){
     const session=req.session;
     const {userName,password}=req.body;
     const dataBase=dataBaseOptions(userName,password);
     const loginPromiseArray=[csurfChecking(session,req), notEmptyCheck(req.body), connectToDatabase(dataBase)];
-    await Promise.all(loginPromiseArray).then(()=>{
+    return await Promise.all(loginPromiseArray).then(()=>{
         const sessionToken=tokenGenerator(75);
         session.csurfToken="";
         const options={httpOnly: true,signed: true, sameSite: true,maxAge:600000};
@@ -33,7 +33,7 @@ router.post("/login",async (req:Request,res:Response)=>{
     })
     .catch(err=>res.status(err.httpStatus).json({
         message: err.message,
-        error:true,
+        error:true
     }));
 });
 export default router;

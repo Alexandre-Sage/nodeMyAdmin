@@ -10,18 +10,17 @@ export default async function fetchAllDatabasesInfo(dataBaseAdress:Pool,res:Resp
     let error:SqlError | undefined;
     await sqlQuery(dataBaseAdress,allDbSqlRequest)
     .then(async dataBasesNames=>{
-        //for(const some of dataBasesNames){}
         for(const dataBase of Object.entries(dataBasesNames)[0][1]){
             const name=dataBase.Database
-            Promise.all([
-                await sqlQuery(dataBaseAdress,tableNumSqlRequest(dataBase.Database)),
-                await sqlQuery(dataBaseAdress,dbSizeSqlRequest(dataBase.Database))
+            await Promise.all([
+                sqlQuery(dataBaseAdress,tableNumSqlRequest(dataBase.Database)),
+                sqlQuery(dataBaseAdress,dbSizeSqlRequest(dataBase.Database))
             ]).then(resolved=>{
                 const tableNumber=Object.entries(resolved[0])[0][1][0]['COUNT(*)'];
                 const dbSize=Object.entries(resolved[1])[0][1][0]?Object.entries(resolved[1])[0][1][0].size_mb:0;
                 dataBases.push({dbName:name,tablesNum:tableNumber,dbSize:`${dbSize} MB`});
-            }).catch(err=>error=err);
+            }).catch(err=>err);
         };
-    }).catch((err:SqlError)=>error=err);
+    }).catch((err:SqlError)=>err);
     return error?error:dataBases;
 };
