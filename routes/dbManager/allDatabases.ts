@@ -14,7 +14,6 @@ router.get("/",async(req:Request,res:Response)=>{
         await fetchAllDatabasesInfo(dataBase,res)
         .then(allDatabases=>allDatabases=allDatabases)
         .catch(err=>log(err))
-        // /log(fetchAllDatabasesInfo(dataBase,res))
         res.render("index",{dataBases:allDatabases});
     }else{
         res.status(403).json({message:"Something wrong happened"});

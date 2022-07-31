@@ -1,5 +1,5 @@
 import validator from "validator";
-
+import CustomError from "../errors/errorClass";
 export const notEmptyCheck=(object:object)=>{
     const {isEmpty,isLength}=validator;
     const responseBody=Object.entries(object);
@@ -9,5 +9,9 @@ export const notEmptyCheck=(object:object)=>{
         if(isEmpty(value) && !isLength(value,{min:2})) break;
         else validationCount++;
     };
-    return (validationCount===responseBody.length);
+    return new Promise((resolve:Function,reject:Function):Boolean | Error=>(
+        validationCount===responseBody.length?resolve(true):reject(
+            new CustomError(`The field ${responseBody[validationCount][0]} is empty.`,400)
+        )
+    ));
 };
