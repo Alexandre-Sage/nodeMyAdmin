@@ -1,8 +1,8 @@
-export interface SqlError extends Object /*Array<any>*/{
-    code:string,
-    errno:number,
-    sqlState:string,
-    sqlMessage:string,
+export interface SqlError extends Array<object> {
+    code: string,
+    errno: number,
+    sqlState: string,
+    sqlMessage: string,
     sql: string | undefined
 };
 /*export type SqlError={
