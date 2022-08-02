@@ -5,6 +5,7 @@ import { cookieResponse, tokenGenerator } from "../modules/cookies/general";
 import { csurfCookieGenerator, csurfChecking } from "../modules/cookies/csurf";
 import { notEmptyCheck } from "../modules/dataValidation/notEmpty";
 import { sessionCreation } from "../modules/sessionManagement/sessionCreation";
+import CustomError, { CustomErrorInterface } from "../modules/errors/errorClass";
 const router = express.Router();
 const server = express();
 
@@ -24,7 +25,21 @@ router.post("/login", async function (req: Request, res: Response) {
     const { userName, password } = req.body;
     const dataBase = dataBaseOptions(userName, password);
     const loginPromiseArray = [csurfChecking(session, req), notEmptyCheck(req.body), connectToDatabase(dataBase)];
-    return await Promise.all(loginPromiseArray).then(() => {
+    try {
+        await Promise.all(loginPromiseArray)
+        const sessionToken = tokenGenerator(75);
+        session.csurfToken = "";
+        const options = { httpOnly: true, signed: true, sameSite: true, maxAge: 600000 };
+        sessionCreation(req, server, session, dataBase, sessionToken);
+        return res.status(200).cookie("SESSION-TOKEN", sessionToken, options).redirect("/");
+    } catch (err: any) {
+        res.status(err.httpStatus).json({
+            message: err.message,
+            error: true
+        });
+    }
+
+    /*return await Promise.all(loginPromiseArray).then(() => {
         const sessionToken = tokenGenerator(75);
         session.csurfToken = "";
         const options = { httpOnly: true, signed: true, sameSite: true, maxAge: 600000 };
@@ -34,6 +49,6 @@ router.post("/login", async function (req: Request, res: Response) {
         .catch(err => res.status(err.httpStatus).json({
             message: err.message,
             error: true
-        }));
+        }));*/
 });
 export default router;
